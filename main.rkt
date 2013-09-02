@@ -82,6 +82,7 @@
                   DOC)]))]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Examples
 
 (define (dbg stx)
   (pretty-print (syntax->datum (expand-once stx))))
