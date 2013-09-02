@@ -1,5 +1,8 @@
 # A function definition form
 
+This is a sketch and start implementation of a form to define a
+function.
+
 When it comes to defining function signatures, Racket has at least
 three (!)  different approaches:
 
@@ -36,7 +39,24 @@ some busywork (writing out `provide`s), it also lets us do the right
 thing with respect to contracts (using `define/contrat` vs. `(provide
 (contract-out ....))`.
 
-For example this:
+First, a simple example without any doc or examples:
+
+```racket
+#lang at-exp racket
+(defn (mult [x number?][y number? 1] -> number?)
+  (* x 3))
+```
+
+Expands to:
+
+```racket
+'(begin
+   (define (mult x (y 1))
+     (* x 3))
+   (provide (contract-out (mult (->* (number?) (number?) number?)))))
+```
+
+This example adds a `#:doc` and multiple `#:ex` examples:
 
 ```racket
 #lang at-exp racket
@@ -51,21 +71,20 @@ For example this:
   (* x 3))
 ```
 
-will `expand-once` to this:
+It will `expand-once` to this:
 
 ```racket
 '(begin
-   (define (mult x (y 1)) (* x 3))
+   (define (mult x (y 1))
+     (* x 3))
    (provide (contract-out (mult (->* (number?) (number?) number?))))
-   (module+
-    test
+   (module+ test
     (require rackunit)
     (check-equal? (mult 10 3) 30)
     (check-equal? (mult 0 3) 0)
     (check-equal? (mult 10) 10)
     (check-equal? (mult 0) 0))
-   (module+
-    doc
+   (module+ doc
     (defproc
      (mult (x number?) (y number? 1))
      number?
@@ -85,7 +104,8 @@ will `expand-once` to this:
      "> (mult 0)\n0\n")))
 ```
 
-Plus, to see the resulting `defproc` expansion:
+And to see the resulting expansion of the `defproc` from the `doc`
+submodule:
 
 ```racket
 > (require (submod "." doc))
@@ -101,7 +121,13 @@ stupidities that haven't even occurred to me yet.
 
 ## TO-DO
 
+- I don't think we _need_ brackets around args, exactly the way
+  `defproc` does. But, do we _want_ them for readability?
+
 - #:rest arguments
+
+- When it is Typed Racket, expand to the `:` form instead of to
+  `define/contract` or `provide (contract-out ....))`.
 
 - The `rackunit` expansion is simplistic; `check-equal?` won't handle
   everything. e.g. What if the function:
@@ -109,7 +135,4 @@ stupidities that haven't even occurred to me yet.
   - Returns `float`
   - Raises an exception for some inputs.
   
-- Do we need brackets around args, just like Scribble `defproc`?
-  No. Do we want them?
-
 [defproc]: http://docs.racket-lang.org/scribble/doc-forms.html#(form._((lib._scribble/manual..rkt)._defproc))
