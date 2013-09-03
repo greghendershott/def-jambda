@@ -165,7 +165,7 @@ stupidities that haven't even occurred to me yet.
 - I don't think we _need_ brackets around args, exactly the way
   `defproc` does. But, do we _want_ them for readability?
 
-- #:rest arguments
+- `#:rest` arguments
 
 - When it is Typed Racket, expand to the `:` form instead of to
   `define/contract` or `provide (contract-out ....))`. Can we detect
