@@ -1,43 +1,84 @@
-# A function definition form
+# A "universal" function definition form
 
-This is a sketch and start implementation of a form to define a
-function.
+Let's jam on some riffs concerning function definition.
 
-When it comes to defining function signatures, Racket has at least
-three (!)  different approaches:
+## Why?
 
-- Untyped Racket with contracts
-- Typed Racket
-- Scribble (`defproc`)
+When it comes to defining function signatures, Racket uses at least
+three approaches. Here's a (relatively) simple example involving one
+required argument and one optional argument. First, plain (untyped)
+Racket with contracts:
+
+```racket
+(provide (contract-out [mult ((number?) (number?) . ->* . number?)]))
+(define (mult x [y 1])
+  (* x y))
+```
+
+Next, the equivalent in Typed Racket:
+
+```racket
+(: mult (case-> (Number -> Number)
+                (Number Number -> Number)))
+(define (mult x [y 1])
+  (* x y))
+```
+
+Granted this uses _types_ not _contracts_, but the point is that
+difference in _form_ is more than it needs to be.
+
+Indeed, when it comes time to document things, Scribble's `defproc`
+uses exactly the same form:
+
+```racket
+;; Untyped
+@defproc[(mult [x number?][y number? 1]) number?]{ some doc text }
+;; Typed
+@defproc[(mult [x Number][y Number 1]) Number]{ some doc text }
+```
 
 Although PL designers and connoisseurs might not mind such variety, a
-newcomer might. There's plenty else they could spend time learning. It
-would be helpful to have one, universal notation.
+newcomer would. There's plenty else they could be learning instead. It
+would be nice instead to use one, consistent notation.
 
-Interestingly, such notation essentially already exists --- it's the
+As we saw above, such notation essentially already exists --- it's the
 respresentation for function signatures used by Scribble's
-[defproc][].
+[defproc][]. So riff number one is: Let's use that as the starting
+point.
+
+## Doc strings to a Scribble `pre-flow` in a `doc` submodule
 
 Speaking of Scribble: Many functions require only a paragraph or two
-of documentation, plus examples. It would be great if the function
-definition could supply a doc string. This could end up as a Scribble
+of documentation, plus examples. It would be great if a function
+definition could supply a doc string. This should end up as a Scribble
 `pre-flow` in a `doc` submodule, much like the convention of using a
 `test` submodule for unit tests.
 
+## Examples used for both doc and tests
+
 Speaking of tests: Good documentation includes a few examples of using
-the function, including its edge cases --- a set of example inputs and
-outputs. Do such examples sound similar to units tests? Yep.  Plus
+the function, including its edge cases: A set of example inputs and
+outputs. Do such examples sound similar to units tests? Yes. Besides,
 nothing is more embarrassing than doc examples that don't work. As a
 result, a function definition should allow you to provide examples,
 which end up being used both (a) in the documentation and (b) as
 `rackunit` `check-equal?` tests.
 
+## Public vs. private, and contracts handled right
+
 While we're at it, let's provide two variations of the form: `defn`
-and `defn-`. The former provides the function, the latter does
-not. Otherwise they are exactly identical. Not only does this avoid
-some busywork (writing out `provide`s), it also lets us do the right
-thing with respect to contracts (using `define/contrat` vs. `(provide
-(contract-out ....))`.
+and `defn-`. The former `provide`s the function, the latter does
+not. Not only does this avoid some busywork (writing out `provide`s),
+it also lets us do the right thing with respect to contracts. Using
+`define/contrat` vs. `(provide (contract-out ....))` can make a large
+difference for performance.
+
+Their usage is exactly the same, so simply changing the name will
+toggle between private and public.
+
+> *NOTE*: Although they could be named `defproc` and `defproc-`. That could be confusing due to Scribble `defproc`. Using `defn` and `defn-` potentially confusing only if you know Clojure.
+
+# Examples
 
 First, a simple example without any doc or examples:
 
@@ -127,12 +168,14 @@ stupidities that haven't even occurred to me yet.
 - #:rest arguments
 
 - When it is Typed Racket, expand to the `:` form instead of to
-  `define/contract` or `provide (contract-out ....))`.
+  `define/contract` or `provide (contract-out ....))`. Can we detect
+  this at compile-time, or must we supply `/typed` variations of
+  `defn` and `defn-`?
 
 - The `rackunit` expansion is simplistic; `check-equal?` won't handle
-  everything. e.g. What if the function:
+  everything. e.g. The function:
   - Returns `values`
   - Returns `float`
   - Raises an exception for some inputs.
-  
+
 [defproc]: http://docs.racket-lang.org/scribble/doc-forms.html#(form._((lib._scribble/manual..rkt)._defproc))
