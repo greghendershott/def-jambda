@@ -33,10 +33,13 @@
     (pattern [(~seq kw:keyword id:id type:expr default:expr)]
              #:attr decl #'(kw [id default])
              #:with req? #f))
+  (define-syntax-class arrow
+    #:description "-> or =>"
+    (pattern (~or (~datum ->) (~datum =>))))
   (syntax-parse stx
-    [(defn (ID ARG:arg ... (~literal ->) RET)
+    [(defn (ID ARG:arg ... _:arrow RET)
        (~seq #:doc DOC-STR) ...
-       (~seq #:ex [EX-ARGS ... (~literal =>) EX-RESULT]) ...
+       (~seq #:ex [EX-ARGS ... _:arrow EX-RESULT]) ...
        BODY ...+)
      (define req?s (syntax->datum #'(ARG.req? ...)))
      (define types (syntax->list  #'(ARG.type ...)))
