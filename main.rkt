@@ -22,16 +22,16 @@
   (define-syntax-class arg
     #:description "function argument [ [#:keyword] id contract [default] ]"
     (pattern [(~seq id:id type:expr)]
-             #:with decl #'(id)
+             #:attr decl #'(id)
              #:with req? #t)
     (pattern [(~seq kw:keyword id:id type:expr)]
-             #:with decl #'(kw id)
+             #:attr decl #'(kw id)
              #:with req? #t)
     (pattern [(~seq id:id type:expr default:expr)]
-             #:with decl #'([id default])
+             #:attr decl #'([id default])
              #:with req? #f)
     (pattern [(~seq kw:keyword id:id type:expr default:expr)]
-             #:with decl #'(kw [id default])
+             #:attr decl #'(kw [id default])
              #:with req? #f))
   (syntax-parse stx
     [(defn (ID ARG:arg ... (~literal ->) RET)
