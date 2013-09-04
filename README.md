@@ -70,7 +70,7 @@ While we're at it, let's provide two variations of the form: `defn`
 and `defn-`. The former `provide`s the function, the latter does
 not. Not only does this avoid some busywork (writing out `provide`s),
 it also lets us do the right thing with respect to contracts. Using
-`define/contrat` vs. `(provide (contract-out ....))` can make a large
+`define/contract` vs. `(provide (contract-out ....))` can make a large
 difference for performance.
 
 Their usage is exactly the same, so simply changing the name will
