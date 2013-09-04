@@ -88,13 +88,13 @@ First, a simple example without any doc or examples:
   (* x 3))
 ```
 
-Expands to:
+This will `expand-once` to:
 
 ```racket
-'(begin
-   (define (mult x (y 1))
-     (* x 3))
-   (provide (contract-out (mult (->* (number?) (number?) number?)))))
+(begin
+  (define (mult x (y 1))
+    (* x 3))
+  (provide (contract-out (mult (->* (number?) (number?) number?)))))
 ```
 
 This example adds a `#:doc` and multiple `#:ex` examples:
@@ -115,34 +115,34 @@ This example adds a `#:doc` and multiple `#:ex` examples:
 It will `expand-once` to this:
 
 ```racket
-'(begin
-   (define (mult x (y 1))
-     (* x 3))
-   (provide (contract-out (mult (->* (number?) (number?) number?))))
-   (module+ test
-    (require rackunit)
-    (check-equal? (mult 10 3) 30)
-    (check-equal? (mult 0 3) 0)
-    (check-equal? (mult 10) 10)
-    (check-equal? (mult 0) 0))
-   (module+ doc
-    (defproc
-     (mult (x number?) (y number? 1))
-     number?
-     (list
-      "Multiplies "
-      (racket x)
-      " by "
-      (racket y)
-      "."
-      "\n"
-      "Use it fruitfully.")
+(begin
+  (define (mult x (y 1))
+    (* x 3))
+  (provide (contract-out (mult (->* (number?) (number?) number?))))
+  (module+ test
+   (require rackunit)
+   (check-equal? (mult 10 3) 30)
+   (check-equal? (mult 0 3) 0)
+   (check-equal? (mult 10) 10)
+   (check-equal? (mult 0) 0))
+  (module+ doc
+   (defproc
+    (mult (x number?) (y number? 1))
+    number?
+    (list
+     "Multiplies "
+     (racket x)
+     " by "
+     (racket y)
+     "."
      "\n"
-     "Examples:\n"
-     "> (mult 10 3)\n30\n"
-     "> (mult 0 3)\n0\n"
-     "> (mult 10)\n10\n"
-     "> (mult 0)\n0\n")))
+     "Use it fruitfully.")
+    "\n"
+    "Examples:\n"
+    "> (mult 10 3)\n30\n"
+    "> (mult 0 3)\n0\n"
+    "> (mult 10)\n10\n"
+    "> (mult 0)\n0\n")))
 ```
 
 And to see the resulting expansion of the `defproc` from the `doc`
