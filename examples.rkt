@@ -14,7 +14,6 @@
      #:doc "Hi"
      #:ex [0 1 2 3 => 0]
      #:ex ["foo" 1 2 3 => (exn:fail:contract)]
-     (add1 x)
      (* 2 x)))
 
 (dbg
