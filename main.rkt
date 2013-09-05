@@ -12,18 +12,61 @@
          defn/typed defn-/typed)
 
 (define-syntax (defn stx)
-  (core-defn stx #f #f))
+  (core-defn stx
+             (lambda (stx)
+               (syntax-case stx ()
+                 [(ID (ARG-DECL ...) (BODY ...) CONTRACT COLON TEST DOC)
+                  #'(begin
+                      (define (ID ARG-DECL ...)
+                        BODY ...)
+                      (provide (contract-out [ID CONTRACT]))
+                      TEST
+                      DOC)]))))
 
 (define-syntax (defn- stx)
-  (core-defn stx #t #f))
+  (core-defn stx
+             (lambda (stx)
+               (syntax-case stx ()
+                 [(ID (ARG-DECL ...) (BODY ...) CONTRACT COLON TEST DOC)
+                  #'(begin
+                      (define/contract (ID ARG-DECL ...)
+                        CONTRACT
+                        BODY ...)
+                      TEST
+                      DOC)]))))
 
 (define-syntax (defn/typed stx)
-  (core-defn stx #f #t))
+  (core-defn stx
+             (lambda (stx)
+               (syntax-case stx ()
+                 [(ID (ARG-DECL ...) (BODY ...) CONTRACT COLON TEST DOC)
+                  #'(begin
+                      COLON
+                      (define (ID ARG-DECL ...)
+                        BODY ...)
+                      (provide ID))]))))
 
 (define-syntax (defn-/typed stx)
-  (core-defn stx #t #t))
+  (core-defn stx
+             (lambda (stx)
+               (syntax-case stx ()
+                 [(ID (ARG-DECL ...) (BODY ...) CONTRACT COLON TEST DOC)
+                  #'(begin
+                      COLON
+                      (define (ID ARG-DECL ...)
+                        BODY ...))]))))
 
-(define-for-syntax (core-defn stx private? typed?)
+;; Given stx for what is expected to be our function definition form,
+;; and a function, calls the function with stx that is a list of the
+;; interesting pattern variables we constructed. The function can then
+;; `syntax-case` match to extract the pattern variables again and use
+;; them in a template.  (Roughly speaking I suppose this is using a
+;; syntax object like a dictionary or struct, and syntax-case like
+;; dict-ref or a field access. Or more closely, like using
+;; `(match-define (list ....) x)`. But with the difference that the
+;; extacted things are pattern variables that may be used in a syntax
+;; template.)
+(define-for-syntax (core-defn stx f)
   (define-syntax-class arg
     #:description "function argument [ [#:keyword] id contract [default] ]"
     (pattern [(~seq id:id type:expr)]
@@ -56,6 +99,7 @@
          (for/list ([req? req?s] [type types] #:unless req?)
            type)]
         [CONTRACT #'(->* (REQ-ARG-TYPES ...) (OPT-ARG-TYPES ...) RET-TYPE)]
+        [COLON #'(: ID (REQ-ARG-TYPES ... -> RET-TYPE))] ;TO-DO: Opt & kw args
         [((ARG-DECL ...) ...) #'(ARG.decl ...)]
         [TEST #'(module+ test
                   (require rackunit)
@@ -74,25 +118,11 @@
                                      (syntax->datum res)))
                            (syntax->list #'((EX-ARGS ...) ...))
                            (syntax->list #'(EX-RESULT ...))))) ])
-       (cond [typed?
-              #`(begin
-                  ;; Big TO-DO: Opt args and kw args
-                  #'(: ID (REQ-ARG-TYPES ... -> RET-TYPE))
-                  (define (ID ARG-DECL ... ...)
-                    BODY ...)
-                  #,@(cond [private? (list)]
-                           [else (list #'(provide ID))]))]
-             [else (cond [private? ;; Use define/contract, do not provide
-                          #'(begin
-                              (define/contract (ID ARG-DECL ... ...)
-                                CONTRACT
-                                BODY ...)
-                              TEST
-                              DOC)]
-                         [else ;; Use define, and provide/contract
-                          #'(begin
-                              (define (ID ARG-DECL ... ...)
-                                BODY ...)
-                              (provide (contract-out [ID CONTRACT]))
-                              TEST
-                              DOC)])]))]))
+       (f #'(ID
+             (ARG-DECL ... ...)
+             (BODY ...)
+             CONTRACT
+             COLON
+             TEST
+             DOC
+             )))]))
