@@ -1,12 +1,10 @@
 #lang racket
 
 (require (for-syntax syntax/parse
-                     racket/syntax))
+                     racket/syntax
+                     "core.rkt"))
 
-(require (for-syntax "core.rkt"))
-
-(provide defn defn-
-         defn/typed defn-/typed)
+(provide defn defn-)
 
 (define-syntax (defn stx)
   (syntax-parse stx
@@ -23,22 +21,5 @@
            (displayln (syntax-source-module (attribute d.TEST) #t))
            #'(begin
                (define/contract d.SIG d.CONTRACT d.BODY ...)
-               d.TEST
-               d.DOC)]))
-
-(define-syntax (defn/typed stx)
-  (syntax-parse stx
-    [d:def #'(begin
-               (provide d.ID)
-               d.COLON
-               (define d.SIG d.BODY ...)
-               d.TEST
-               d.DOC)]))
-
-(define-syntax (defn-/typed stx)
-  (syntax-parse stx
-    [d:def #'(begin
-               d.COLON
-               (define d.SIG d.BODY ...)
                d.TEST
                d.DOC)]))
