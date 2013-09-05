@@ -9,8 +9,9 @@
 ;; `for-template`. Otherwise, macro expansions will elicit errors
 ;; like, "module+: undefined` or "defproc: undefined". See
 ;; docs.racket-lang.org/syntax/Phases_and_Reusable_Syntax_Classes.html
-(require (for-template racket
-         (only-in scribble/manual defproc)))
+(require (for-template (except-in racket ->)
+                       (only-in typed/racket : ->)
+                       (only-in scribble/manual defproc)))
 
 (provide def)
 
