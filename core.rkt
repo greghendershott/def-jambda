@@ -2,6 +2,7 @@
 
 (require syntax/parse
          racket/syntax
+         racket/list
          racket/string
          racket/format)
 
@@ -9,8 +10,8 @@
 ;; `for-template`. Otherwise, macro expansions will elicit errors
 ;; like, "module+: undefined` or "defproc: undefined". See
 ;; docs.racket-lang.org/syntax/Phases_and_Reusable_Syntax_Classes.html
-(require (for-template (except-in racket ->)
-                       (only-in typed/racket : ->)
+(require (for-template (except-in racket -> case->)
+                       (only-in typed/racket : -> case->)
                        (only-in scribble/manual defproc)))
 
 (provide def)
@@ -52,8 +53,11 @@
      type)
    #:with
    CONTRACT #'(->* (REQ-ARG-TYPES ...) (OPT-ARG-TYPES ...) RET-TYPE)
-   #:with
-   COLON #'(: ID (REQ-ARG-TYPES ... -> RET-TYPE)) ;TO-DO: Opt & kw args
+   #:with (CASE->PERMUTATIONS ...)
+   (let ([opt-arg-type-stxs (syntax->list #'(OPT-ARG-TYPES ...))])
+     (for/list ([i (add1 (length opt-arg-type-stxs))])
+       #`(REQ-ARG-TYPES ... #,@(take opt-arg-type-stxs i) -> RET-TYPE)))
+   #:with COLON #'(: ID (case-> CASE->PERMUTATIONS ...))
    #:with
    ((ARG-DECL ...) ...) #'(ARG.decl ...)
    #:with
