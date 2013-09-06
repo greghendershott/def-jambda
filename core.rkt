@@ -43,41 +43,36 @@
      BODY ...+)
    #:attr req?s (syntax->datum #'(ARG.req? ...))
    #:attr types (syntax->list  #'(ARG.type ...))
-   #:with
-   (REQ-ARG-TYPES ...)
-   (for/list ([req? (attribute req?s)] [type (attribute types)] #:when req?)
-     type)
-   #:with
-   (OPT-ARG-TYPES ...)
-   (for/list ([req? (attribute req?s)] [type (attribute types)] #:unless req?)
-     type)
-   #:with
-   CONTRACT #'(->* (REQ-ARG-TYPES ...) (OPT-ARG-TYPES ...) RET-TYPE)
-   #:with (CASE->PERMUTATIONS ...)
-   (let ([opt-arg-type-stxs (syntax->list #'(OPT-ARG-TYPES ...))])
-     (for/list ([i (add1 (length opt-arg-type-stxs))])
-       #`(REQ-ARG-TYPES ... #,@(take opt-arg-type-stxs i) -> RET-TYPE)))
-   #:with COLON #'(: ID (case-> CASE->PERMUTATIONS ...))
-   #:with
-   ((ARG-DECL ...) ...) #'(ARG.decl ...)
-   #:with
-   SIG #'(ID ARG-DECL ... ...)
-   #:attr
-   TEST #'(module+ test
-            (require rackunit)
-            (check-equal? (ID EX-ARGS ...) EX-RESULT) ...)
-   #:with
-   DOC #`(module+ doc
-           (defproc (ID ARG ...) RET-TYPE
-             DOC-STR ... "\n"
-             #,(cond [(= 0 (length (syntax->list #'(EX-RESULT ...)))) ""]
-                     [else "Examples:\n"])
-             #,@(map (lambda (args res)
-                       (format "> (~a ~a)\n~a\n"
-                               (syntax->datum #'ID)
-                               (string-join
-                                (map (compose ~a syntax->datum)
-                                     (syntax->list args)))
-                               (syntax->datum res)))
-                     (syntax->list #'((EX-ARGS ...) ...))
-                     (syntax->list #'(EX-RESULT ...)))))))
+   #:with (REQ-ARG-TYPES ...) (for/list ([req? (attribute req?s)]
+                                         [type (attribute types)]
+                                         #:when req?)
+                                type)
+   #:with (OPT-ARG-TYPES ...) (for/list ([req? (attribute req?s)]
+                                         [type (attribute types)]
+                                         #:unless req?)
+                                type)
+   #:with CONTRACT #'(->* (REQ-ARG-TYPES ...) (OPT-ARG-TYPES ...) RET-TYPE)
+   #:with (CASE->S ...) (let ([stxs (syntax->list #'(OPT-ARG-TYPES ...))])
+                          (for/list ([i (add1 (length stxs))])
+                            #`(REQ-ARG-TYPES ... #,@(take stxs i) -> RET-TYPE)))
+   #:with COLON #'(: ID (case-> CASE->S ...))
+   #:with ((ARG-DECL ...) ...) #'(ARG.decl ...)
+   #:with SIG #'(ID ARG-DECL ... ...)
+   #:attr TEST #'(module+ test
+                   (require rackunit)
+                   (check-equal? (ID EX-ARGS ...) EX-RESULT) ...)
+   #:with DOC #`(module+ doc
+                  (defproc (ID ARG ...) RET-TYPE
+                    DOC-STR ... "\n"
+                    #,(if (= 0 (length (syntax->list #'(EX-RESULT ...))))
+                          ""
+                          "Examples:\n")
+                    #,@(map (lambda (args res)
+                              (format "> (~a ~a)\n~a\n"
+                                      (syntax->datum #'ID)
+                                      (string-join
+                                       (map (compose ~a syntax->datum)
+                                            (syntax->list args)))
+                                      (syntax->datum res)))
+                            (syntax->list #'((EX-ARGS ...) ...))
+                            (syntax->list #'(EX-RESULT ...)))))))
