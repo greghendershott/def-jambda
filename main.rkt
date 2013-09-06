@@ -16,10 +16,7 @@
 
 (define-syntax (defn- stx)
   (syntax-parse stx
-    [d:def (displayln (attribute d.TEST))
-           (displayln (syntax-source (attribute d.TEST)))
-           (displayln (syntax-source-module (attribute d.TEST) #t))
-           #'(begin
+    [d:def #'(begin
                (define/contract d.SIG d.CONTRACT d.BODY ...)
                d.TEST
                d.DOC)]))
