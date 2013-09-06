@@ -64,7 +64,8 @@
    #:with DOC #`(module+ doc
                   (defproc (ID ARG ...) RET-TYPE
                     DOC-STR ... "\n"
-                    #,(if (= 0 (length (syntax->list #'(EX-RESULT ...))))
+                    ;; TO-DO: Use actual `examples` form from Scribble:
+                    #,(if (empty? (syntax->list #'(EX-RESULT ...)))
                           ""
                           "Examples:\n")
                     #,@(map (lambda (args res)
