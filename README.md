@@ -162,20 +162,22 @@ stupidities that haven't even occurred to me yet.
 
 ## TO-DO
 
-- I don't think we _need_ brackets around args, exactly the way
-  `defproc` does. But, do we _want_ them for readability?
+- The Typed Racket versions are implemented, but there's a bug with
+  optional arguments (see `typed/main.rkt`).
 
 - `#:rest` arguments
-
-- When it is Typed Racket, expand to the `:` form instead of to
-  `define/contract` or `provide (contract-out ....))`. Can we detect
-  this at compile-time, or must we supply `/typed` variations of
-  `defn` and `defn-`?
 
 - The `rackunit` expansion is simplistic; `check-equal?` won't handle
   everything. e.g. The function:
   - Returns `values`
   - Returns `float`
   - Raises an exception for some inputs.
+
+- Great, it makes `doc` submodules. Now what? i.e. What's the
+  equivalent of `raco test`?
+
+- The non-`provide` variation (currently named `defn-`) probably
+  shouldn't bother to make docs. i.e. Wouldn't you only doc "public"
+  functions `provide`d outside the module?
 
 [defproc]: http://docs.racket-lang.org/scribble/doc-forms.html#(form._((lib._scribble/manual..rkt)._defproc))
