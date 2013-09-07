@@ -24,11 +24,11 @@ Next, the equivalent in Typed Racket:
   (* x y))
 ```
 
-Granted this uses _types_ not _contracts_, but the point is that
-difference in _form_ is more than it needs to be.
+Of course this must use types (instead of contracts). However there is
+also a difference in _form_. That seems unnecessary.
 
-Indeed, when it comes time to document things, Scribble's `defproc`
-uses exactly the same form:
+Indeed, when we write documentation, Scribble's `defproc` uses exactly
+the same form for untyped and typed:
 
 ```racket
 ;; Untyped
@@ -57,8 +57,8 @@ definition could supply a doc string. This should end up as a Scribble
 ## Examples used for both doc and tests
 
 Speaking of tests: Good documentation includes a few examples of using
-the function, including its edge cases: A set of example inputs and
-outputs. Do such examples sound similar to units tests? Yes. Besides,
+the function, including its edge cases: A set of example inputs ando
+utputs. Do such examples sound similar to unit tests? Yep. Besides,
 nothing is more embarrassing than doc examples that don't work. As a
 result, a function definition should allow you to provide examples,
 which end up being used both (a) in the documentation and (b) as
