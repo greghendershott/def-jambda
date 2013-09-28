@@ -57,8 +57,8 @@ definition could supply a doc string. This should end up as a Scribble
 ## Examples used for both doc and tests
 
 Speaking of tests: Good documentation includes a few examples of using
-the function, including its edge cases: A set of example inputs ando
-utputs. Do such examples sound similar to unit tests? Yep. Besides,
+the function, including its edge cases: A set of example inputs and
+outputs. Do such examples sound similar to unit tests? Yep. Besides,
 nothing is more embarrassing than doc examples that don't work. As a
 result, a function definition should allow you to provide examples,
 which end up being used both (a) in the documentation and (b) as
